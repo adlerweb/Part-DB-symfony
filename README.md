@@ -61,8 +61,7 @@ Anyhow, the migrations that will be made, are not compatible with the old Part-D
 Also after the migration it is not possible to go back to the old database scheme, so make sure to make a backup of your database beforehand.
 See [UPGRADE](UPGRADE.md) for more infos.
 
-*Hint:* A docker image is available under [jbtronics/part-db1](https://hub.docker.com/repository/docker/jbtronics/part-db1).
-
+### Manual installation
 1. Copy or clone this repository into a folder on your server.
 2. Configure your webserver to serve from the `public/` folder. See [here](https://symfony.com/doc/current/setup/web_server_configuration.html)
 for additional informations.
@@ -79,6 +78,19 @@ for additional informations.
 
 When you want to upgrade to a newer version, then just copy the new files into the folder
 and repeat the steps 4. to 7.
+
+### Installation using Docker
+
+You can find a docker image named [part-db1](https://hub.docker.com/r/jbtronics/part-db1) on Docker Hub. It is based on PHP7 and Apache. Data is stored in a **external** MySQL-Database, so install one beforehand yourself. The following example doesn't utilize volumes, as such all data will be lost if you recreate the container. 
+
+1. Copy the global config file `cp .env .env.local` and edit `.env.local`:
+    * Change the line `APP_ENV=dev` to `APP_ENV=prod`
+    * Change the value of `DATABASE_URL=` to your needs (see [here](http://docs.doctrine-project.org/projects/doctrine-dbal/en/latest/reference/configuration.html#connecting-using-a-url)) for the format.
+2. Start the docker image:
+    * `docker run --name partdb -p 8686:80 -v ${PWD}/.env.local:/var/www/html/.env.local -d jbtronics/part-db1:latest`
+        * Change 8686 to another port if required. 
+3. Prepare database
+    * `docker exec -ti partdb php bin/console doctrine:migrations:migrate`
 
 ## Built with
 * [Symfony 4](https://symfony.com/): The main framework used for the serverside PHP
